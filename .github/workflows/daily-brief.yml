@@ -1,0 +1,67 @@
+name: Daily Cyber Brief
+on:
+  schedule:
+    - cron: "0 19 * * *"   # 10 PM Saudi time
+  workflow_dispatch:
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      HOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: pipx install yt-dlp
+
+      - name: Trending in cyber
+        run: |
+          timeout 900 uv run python skills/last30days/scripts/last30days.py \
+            --discover "cybersecurity" --output trending.md || true
+          if [ -s trending.md ]; then
+            curl -s -F "content=🔥 **Trending in Cybersecurity**" -F "file=@trending.md" "$HOOK"
+          fi
+          sleep 2
+
+      - name: Daily topics
+        run: |
+          TOPICS=(
+            # News & attacks
+            "cybersecurity news"
+            "data breach"
+            "ransomware attack"
+            "APT threat actor"
+            # Vulnerabilities & exploits
+            "zero-day vulnerability"
+            "critical CVE exploit"
+            "malware analysis"
+            # AI in security
+            "AI cybersecurity"
+            "LLM prompt injection jailbreak"
+            # Certifications & learning
+            "OSCP OSWE OSEP certification"
+            "cybersecurity certification"
+            # Offensive & competitions
+            "CTF competition writeup"
+            "bug bounty"
+            "red team penetration testing tools"
+            # Defense & forensics
+            "DFIR digital forensics"
+            "cloud security"
+            # Saudi & region
+            "Saudi Arabia cybersecurity"
+          )
+          for T in "${TOPICS[@]}"; do
+            F="report-${T// /-}.md"
+            timeout 600 uv run python skills/last30days/scripts/last30days.py "$T" \
+              --quick --lookback-days 1 --output "$F" || true
+            if [ -s "$F" ]; then
+              curl -s -F "content=📰 **$T** — last 24 hours" -F "file=@$F" "$HOOK"
+            else
+              curl -s -H "Content-Type: application/json" \
+                -d "{\"content\":\"Nothing new: $T\"}" "$HOOK"
+            fi
+            sleep 2
+          done

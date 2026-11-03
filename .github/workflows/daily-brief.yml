@@ -34,7 +34,32 @@ jobs:
         run: |
           cat > /tmp/sum.py <<'EOF'
           import json, os, sys, time, urllib.request, urllib.error
+          KEY = os.environ["GOOGLE_API_KEY"]
+          BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+          GOOD = "/tmp/good_model.txt"
           raw, title, out = sys.argv[1], sys.argv[2], sys.argv[3]
+
+          def available_models():
+              try:
+                  req = urllib.request.Request(BASE + "?pageSize=200", headers={"x-goog-api-key": KEY})
+                  data = json.load(urllib.request.urlopen(req, timeout=30))
+              except Exception as e:
+                  print("list models failed:", e, file=sys.stderr)
+                  return []
+              names = [m["name"].split("/", 1)[1] for m in data.get("models", [])
+                       if "generateContent" in m.get("supportedGenerationMethods", [])]
+              bad = ("lite", "image", "tts", "live", "audio", "embedding", "thinking")
+              flash = sorted([n for n in names if "flash" in n and not any(b in n for b in bad)], reverse=True)
+              stable = [n for n in flash if "preview" not in n and "exp" not in n]
+              return stable + [n for n in flash if n not in stable]
+
+          models = []
+          if os.path.exists(GOOD):
+              models.append(open(GOOD).read().strip())
+          for m in available_models() + ["gemini-flash-latest"]:
+              if m and m not in models:
+                  models.append(m)
+
           text = open(raw, encoding="utf-8", errors="ignore").read()[:40000]
           prompt = f"""You are a cybersecurity analyst writing a daily brief.
           Below is raw research evidence collected from the internet about: {title}
@@ -52,15 +77,12 @@ jobs:
           EVIDENCE:
           {text}"""
           body = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode()
-          models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"]
-          last = "unknown error"
-          for m in models:
+
+          errors = []
+          for m in models[:5]:
               for attempt in range(3):
-                  req = urllib.request.Request(
-                      f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
-                      data=body,
-                      headers={"Content-Type": "application/json",
-                               "x-goog-api-key": os.environ["GOOGLE_API_KEY"]})
+                  req = urllib.request.Request(f"{BASE}/{m}:generateContent", data=body,
+                      headers={"Content-Type": "application/json", "x-goog-api-key": KEY})
                   try:
                       data = json.load(urllib.request.urlopen(req, timeout=120))
                       s = "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"]).strip()
@@ -68,20 +90,28 @@ jobs:
                           if len(s) > 1950:
                               s = s[:1940] + "…"
                           open(out, "w", encoding="utf-8").write(s + "\n")
+                          open(GOOD, "w").write(m)
                           sys.exit(0)
-                      last = f"{m}: empty response"
+                      errors.append(f"{m}: empty")
                       break
                   except urllib.error.HTTPError as e:
-                      last = f"{m}: HTTP {e.code} {e.read().decode(errors='ignore')[:150]}"
-                      if e.code == 429:
+                      msg = e.read().decode(errors="ignore")
+                      try:
+                          msg = json.loads(msg)["error"]["message"]
+                      except Exception:
+                          pass
+                      if e.code == 429 and attempt < 2:
                           time.sleep(20 * (attempt + 1))
                           continue
+                      errors.append(f"{m}: HTTP {e.code} {msg[:80]}")
                       break
                   except Exception as e:
-                      last = f"{m}: {e}"
+                      errors.append(f"{m}: {str(e)[:80]}")
                       break
-          open("/tmp/sum_error.txt", "w").write(last.replace("\n", " "))
-          print("summary failed:", last, file=sys.stderr)
+
+          err = " | ".join(errors) or "no models available"
+          open("/tmp/sum_error.txt", "w").write(err.replace("\n", " ")[:400])
+          print("summary failed:", err, file=sys.stderr)
           sys.exit(1)
           EOF
 
@@ -134,7 +164,7 @@ jobs:
                 curl -s -F "content=<$S" "$HOOK"
               else
                 cp "$F" "$S"
-                curl -s --form-string "content=📰 **$T** — summary failed: $(cat /tmp/sum_error.txt) · Full report on dashboard" "$HOOK"
+                curl -s --form-string "content=📰 **$T** — summary failed: $(cat /tmp/sum_error.txt)" "$HOOK"
               fi
             else
               rm -f "$F"

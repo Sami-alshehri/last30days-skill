@@ -1,0 +1,6 @@
+**🔥 Top Stories Today**
+1. Cyberattack Target European Supermarket Freezers - Hackers raised temperatures to 50°C across European stores, destroying food stocks and directly threatening physical inventory. <https://www.tomshardware.com/tech-industry/cyber-security/supermarket-freezers-across-europe-struck-in-second-crippling-cyberattack-hackers-raise-temperatures-to-50-degrees-celsius-in-belgium-and-sweden-destroying-food-stocks>
+2. WorkOS Reports Security Breach Involving ARTEX AI Agent Framework - The incident was isolated to internal GTM systems without compromising production environments or customer data. <https://news.ycombinator.com/item?id=50345712>
+3. Budget Android Projector Discovered Shipping With Malware Loader - The pre-installed malware features active C2 capabilities, creating an immediate hardware supply chain risk out of the box. <https://hy310.rinkleff.dev/>
+4. Critical "HTTP2Shell" Heap Out-of-Bounds Flaw Found in Brotli Decoder - CVE-2026-111497 presents exploitation risks across web infrastructure handling compressed data processing. <https://github.com/MWBMPartners/Go2My.Link/issues/302>
+5. Drupal Core Impacted by High-Severity "PHP2Shell" Flaws - CVE-2026-109618 and CVE-2026-109619 carry a CVSS 9.2 score, targeting core updates across Drupal deployments. <https://github.com/mitre/mitre-inspec.github.io/issues/6>

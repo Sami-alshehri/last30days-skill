@@ -1,0 +1,8 @@
+**🤖 AI & Security**
+• Adversa AI reported zero-click prompt injections in AI coding agents that escaped terminal sandboxes and overwritten sandbox binaries. <https://aigovernance.com/news/zero-click-prompt-injection-escapes-coding-agent-sandbox-binary-overwritten>
+• Microsoft security research exposed how prompt injection in AI agent frameworks can escalate to Remote Code Execution (RCE). <https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks/>
+• CISA launched an operational pilot using Super Intelligence capabilities to detect and remediate vulnerabilities in critical infrastructure. <https://www.cisa.gov/resources-tools/resources/pilot-artificial-intelligence-enabled-vulnerability-detection>
+• NVIDIA's AI Red Team issued guidance advocating for mandatory OS-level sandbox controls to mitigate indirect prompt injection risks in agentic workflows. <https://developer.nvidia.com/blog/practical-security-guidance-for-sandboxing-agentic-workflows-and-managing-execution-risk/>
+• Academic research demonstrated bypassing LLM guardrail detection systems via traditional character injection and Adversarial Machine Learning techniques. <https://arxiv.org/html/2504.11168v1>
+• A 2026 AI Prompt Injection Cheatsheet was released targeting frontier models, reasoning engines, agentic pipelines, and RAG systems. <https://github.com/nukIeer/AI-Prompt-Injection-Cheatsheet>
+Why it matters: Prompt injection is rapidly transitioning from output-manipulation bugs to severe infrastructure threats like sandbox escapes and remote code execution as AI agents gain deeper integration with host operating systems.

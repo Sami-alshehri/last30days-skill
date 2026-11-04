@@ -1,5 +1,22 @@
 [
  [
+  "2026-11-04",
+  [
+   "01-Breaches-and-Attacks.md",
+   "02-Vulnerabilities-and-Exploits.md",
+   "03-Threat-Intel-and-Malware.md",
+   "04-AI-and-Security.md",
+   "05-Certifications-and-Learning.md",
+   "06-CTF-and-Bug-Bounty.md",
+   "07-Offensive-and-Tools.md",
+   "08-Defense-and-DFIR.md",
+   "09-Cloud-and-Identity.md",
+   "10-Policy-and-Industry.md",
+   "11-Saudi-and-Gulf.md",
+   "12-Talks-and-Conferences.md"
+  ]
+ ],
+ [
   "2026-11-03",
   [
    "00-top-stories.md",
